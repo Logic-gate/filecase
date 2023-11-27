@@ -7,7 +7,7 @@ ApplicationWindow
 {
     id: appWindow
 
-    property string appVersion: "0.4.2"
+    property string appVersion: "0.4.3.1 RC5 - PlayGround"
 
     property string savedorientation: config.readConfig("Orientation", "auto")
 

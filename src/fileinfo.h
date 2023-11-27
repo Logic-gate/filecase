@@ -28,6 +28,7 @@ public slots:
     void setFile(QString filelist);
     void setSizeInfo(double size);
     void setSizeInfoLoading(double size);
+    QString getIconForFile(QString filename, bool colorScheme);
 
 signals:
     void fileChanged();
