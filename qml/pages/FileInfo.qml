@@ -3,6 +3,7 @@ import Sailfish.Silica 1.0
 import FileCase 1.0
 import QtMultimedia 5.0
 import Nemo.Thumbnailer 1.0
+import QtQuick.Window 2.2
 
 Page {
     id: infoPage
@@ -22,6 +23,7 @@ Page {
         }
     }
 
+    property int scaleSize: Screen.width
     property bool cloudFile: false
     property bool loadingLink: false
 
@@ -146,17 +148,25 @@ Page {
                 id: image
                 visible: cloudFile || (fileInfo.data.icon!=="" && fileInfo.data.mime.indexOf("audio")===-1)
 
-                source: cloudFile? fileImage : (fileInfo.data.icon.indexOf("/")===-1?
-                        "file:///usr/share/filecase/" + iconTheme + "/" + fileInfo.data.icon + ".png" :
-                        (fileInfo.data.icon!=="" ? fileInfo.getFilePreview(fileInfo.data.path + "/" + fileInfo.data.name) : "") )
+//                source: cloudFile? fileImage : (fileInfo.data.icon.indexOf("/")===-1?
+//                        "file:///usr/share/filecase/" + iconTheme + "/" + fileInfo.data.icon + ".png" :
+//                        (fileInfo.data.icon!=="" ? fileInfo.getFilePreview(fileInfo.data.path + "/" + fileInfo.data.name) : "") )
 
-                width: parent.width
-                height: implicitHeight < 480 && implicitHeight != 0 ? implicitHeight : 480
-                sourceSize.width: width
+                source: cloudFile? fileImage : (fileInfo.data.icon.indexOf("/")===-1?
+                        fileInfo.getIconForFile(htype, Theme.colorScheme) :
+                        (fileInfo.data.icon!=="" ? fileInfo.getFilePreview(fileInfo.data.path + "/" + fileInfo.data.name) : "") )
+//                width: parent.width
+//                height: implicitHeight < 480 && implicitHeight != 0 ? implicitHeight : 480
+                height: implicitHeight < scaleSize && implicitHeight != 0 ? implicitHeight : scaleSize
+                //sourceSize.width: width
                 sourceSize.height: height
                 fillMode: Image.PreserveAspectFit
                 anchors.horizontalCenter: parent.horizontalCenter
                 asynchronous: true
+
+                Component.onCompleted: {
+                console.log(htype)
+                }
 
             }
 

@@ -10,5 +10,6 @@ double GetFolderSize ( const QString &path );
 QString GetFileSize ( double size );
 QString GetExtension ( QString name );
 QString GetDate ( QString date );
+QString mimeTypeIcon(const QString& mimeType, bool colorScheme);
 
 #endif // UTILS_H

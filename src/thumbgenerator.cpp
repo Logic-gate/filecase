@@ -11,6 +11,8 @@
 #include <QDebug>
 #include <QProcess>
 #include <QLibrary>
+#include <QScreen>
+#include <QGuiApplication>
 
 typedef QImage (*CreateThumbnailFunc)(const QString &fileName, const QSize &requestedSize, bool crop);
 
@@ -62,27 +64,51 @@ void ThumbGenerator::generate(QString filename)
             QImageReader reader(fileInfo.absoluteFilePath());
             reader.setAutoTransform(true);
             QImage img = reader.read();
+
+            int screenWidth = QGuiApplication::primaryScreen()->size().width();
+            int scaleSize = screenWidth;
             if ( img.height() > img.width() ) {
-                result = img.scaledToWidth(480,Qt::SmoothTransformation);
-                //result = result.copy(0,result.height()/2-90,180,180);
+                result = img.scaledToWidth(scaleSize, Qt::SmoothTransformation);
             }
-            else if ( img.height() < img.width() )
-            {
-                result = img.scaledToHeight(480,Qt::SmoothTransformation);
-                //result = result.copy(result.width()/2-90,0,180,180);
+            else if ( img.height() < img.width() ) {
+                result = img.scaledToHeight(scaleSize, Qt::SmoothTransformation);
             }
-            else if ( img.height() > 480 )
-            {
-                result = img.scaled(480, 480, Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation);
-                //result = result.copy(0,0,180,180);
+            else if ( img.height() > scaleSize ) {
+                result = img.scaled(scaleSize, scaleSize, Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation);
             }
-            else
-            {
+            else {
                 result = img;
             }
             result.save( tf, "JPEG" );
-
         }
+//        if ( !QFileInfo(tf).exists() )
+//        {
+//            //Utilities::logData("Generating thumbnail for " + fileInfo.absoluteFilePath());
+//            QImage result;
+//            QImageReader reader(fileInfo.absoluteFilePath());
+//            reader.setAutoTransform(true);
+//            QImage img = reader.read();
+//            if ( img.height() > img.width() ) {
+//                result = img.scaledToWidth(480,Qt::SmoothTransformation);
+//                //result = result.copy(0,result.height()/2-90,180,180);
+//            }
+//            else if ( img.height() < img.width() )
+//            {
+//                result = img.scaledToHeight(480,Qt::SmoothTransformation);
+//                //result = result.copy(result.width()/2-90,0,180,180);
+//            }
+//            else if ( img.height() > 480 )
+//            {
+//                result = img.scaled(480, 480, Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation);
+//                //result = result.copy(0,0,180,180);
+//            }
+//            else
+//            {
+//                result = img;
+//            }
+//            result.save( tf, "JPEG" );
+
+//        }
         emit imgLoaded(tf);
     }
     else if (filename.endsWith(".mp4") || filename.endsWith(".3gp") || filename.endsWith(".avi") || filename.endsWith(".wmv"))
@@ -106,7 +132,7 @@ void ThumbGenerator::generate(QString filename)
             arguments << "-i" << fileInfo.absoluteFilePath()
                       << "-ss" << "00:00:01"                 // Arbitrary time can be anything (1 second here)
                       << "-vframes" << "1"
-                      << "-q:v" << "2"                       // Quality factor. Lower is better. Higher gives lower bitrate. 2 is 1735 kb/s Check https://ffmpeg.org/ffmpeg-codecs.html#Options-22
+                      << "-q:v" << "1000"                       // Quality factor. Lower is better. Higher gives lower bitrate. 2 is 1735 kb/s Check https://ffmpeg.org/ffmpeg-codecs.html#Options-22
                       << thumb;
 
             QProcess process;

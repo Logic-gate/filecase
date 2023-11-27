@@ -161,3 +161,9 @@ QVariantMap FileInfo::getFileMimetype(QString filename)
     res.insert("name", ftype.name());
       return res;
 }
+
+QString FileInfo::getIconForFile(QString mimeType, bool colorScheme) {
+    QString icon = mimeTypeIcon(mimeType, colorScheme);
+
+    return icon;
+}

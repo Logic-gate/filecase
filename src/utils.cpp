@@ -117,6 +117,71 @@ QString GetExtension(QString name)
 
 }
 
+
+QString mimeTypeIcon(const QString& mimeType, bool colorScheme) {
+    QString type = mimeType.section('/', 0, 0);
+    QString icon;
+
+    if (type == "audio") {
+        icon = "image://theme/icon-m-file-audio";
+    } else if (type == "image") {
+        icon = "image://theme/icon-m-file-image";
+    } else if (type == "video") {
+        icon = "image://theme/icon-m-file-video";
+    } else {
+        icon = "image://theme/icon-m-file-document-dark";
+    }
+
+    if (mimeType == "application/pdf") {
+        icon = "image://theme/icon-m-file-pdf-dark";
+    } else if (mimeType == "application/vnd.ms-excel" ||
+               mimeType == "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" ||
+               mimeType == "application/vnd.oasis.opendocument.spreadsheet" ||
+               mimeType == "application/vnd.google-apps.spreadsheet") {
+        icon = "image://theme/icon-m-file-spreadsheet-dark";
+    } else if (mimeType == "application/vnd.ms-powerpoint" ||
+               mimeType == "application/vnd.openxmlformats-officedocument.presentationml.presentation" ||
+               mimeType == "application/vnd.oasis.opendocument.presentation" ||
+               mimeType == "application/vnd.google-apps.presentation") {
+        icon = "image://theme/icon-m-file-presentation-dark";
+    } else if (mimeType == "application/msword" ||
+               mimeType == "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ||
+               mimeType == "application/vnd.oasis.opendocument.text" ||
+               mimeType == "application/vnd.google-apps.document") {
+        icon = "image://theme/icon-m-file-formatted-dark";
+    } else if (mimeType == "application/x-rar-compressed" ||
+               mimeType == "application/zip" ||
+               mimeType == "application/x-tar" ||
+               mimeType == "application/x-bzip" ||
+               mimeType == "application/x-bzip2" ||
+               mimeType == "application/gzip" ||
+               mimeType == "application/x-7z-compressed" ||
+               mimeType == "application/x-lzma" ||
+               mimeType == "application/x-compressed-tar" ||
+               mimeType == "application/x-xz") {
+        icon = "image://theme/icon-m-file-archive-folder";
+    } else if (mimeType == "application/vnd.android.package-archive") {
+        icon = "image://theme/icon-m-file-apk";
+    } else if (mimeType == "application/x-rpm") {
+        icon = "image://theme/icon-m-file-rpm";
+    } else if (mimeType == "text/plain") {
+        icon = "image://theme/icon-m-file-note-dark";
+   } else if (mimeType == "application/json" ||
+              mimeType == "application/x-shellscript" ||
+              mimeType == "text/x-rpm-spec" ||
+              mimeType == "text/x-patch" ||
+              mimeType == "text/x-qml" ||
+              mimeType == "text/x-log") {
+        icon = "image://theme/icon-m-file-other-dark";
+    }
+
+    if (colorScheme) {
+        icon.replace("-dark", "-light");
+    }
+    return icon;
+}
+
+
 QString GetDate(QString date)
 {
     date.replace("Jan","01");

@@ -21,6 +21,25 @@ Page {
     backNavigation: !clearRemorse.visible
 
 
+    function resolveThemeIcon(themeIcon) {
+
+        var basePath = "/usr/share/themes/sailfish-default/meegotouch/z1.75/icons/";
+        var iconName = themeIcon.replace("image://theme/", "");
+        var resolvedPath = basePath + iconName + ".png";
+        return resolvedPath;
+    }
+
+    function isVideo(extension) {
+            var videoExtensions = ["mp4", "avi", "mkv", "mov"];
+            return videoExtensions.indexOf(extension.toLowerCase()) !== -1;
+        }
+
+        function generateThumbnail(videoPath) {
+
+            return fileInfo.getFilePreview(videoPath);
+        }
+
+
     Browser {
         id: browser
     }
@@ -311,23 +330,99 @@ Page {
             delegate: FileDelegate {
                 id: fileDelegate
                 property bool filtered: model.name.match(new RegExp(searchText.text,"i")) !== null
-                contentHeight: Theme.itemSizeMedium //container.cellHeight
+//                contentHeight: Theme.itemSizeMedium //container.cellHeight
+                contentHeight: Math.max(Theme.itemSizeMedium,
+                                                    labels.height + 2 * Theme.paddingMedium)
                 //contentWidth: container.cellWidth
 
                 highlighted: down || model.type===Browser.FolderSel || model.type===Browser.FileSel //selectionmodeItems.indexOf(model.path)>-1
 
-                imgsource: model.exten.indexOf("/")===-1? "/usr/share/filecase/" + iconTheme + "/" + model.exten +
-                           (model.exten==="folder" && model.link==="yes"? "-link" : "") + ".png" : model.path
+//                imgsource: model.exten.indexOf("/")===-1? "/usr/share/filecase/" + iconTheme + "/" + model.exten +
+//                           (model.exten==="folder" && model.link==="yes"? "-link" : "") + ".png" : model.path
+//                imgsource:
+//                {
+//                    if (model.exten === "folder") {
+//                        return resolveThemeIcon("image://theme/icon-m-file-folder")
+//                    } else if (model.exten.indexOf("/") === -1) {
+//                        var mimeTypeMap = fileInfo.getFileMimetype(model.path);
+//                        console.log(mimeTypeMap.name);
+//                        console.log(fileInfo.getIconForFile(mimeTypeMap.name, Theme.colorScheme));
+//                        // Assuming getIconForFile is a function that takes mimeType's name and color scheme
+//                        // and returns the corresponding icon path as a string.
+//                        return resolveThemeIcon(fileInfo.getIconForFile(mimeTypeMap.name, Theme.colorScheme));
+//                    } else {
+//                        return model.path
+//                    }
+
+//                }
+                Image {
+                        id: delegateImage
+                        cache: true
+                        asynchronous: true
+                        anchors {
+                            left: parent.left
+                            leftMargin: Theme.horizontalPageMargin
+                            verticalCenter: parent.verticalCenter
+                                        }
+                        source: model.exten === "folder" ? "image://theme/icon-m-file-folder"
+                                 : fileInfo.getFileMimetype(model.path).name.indexOf("video/") === 0 ? generateThumbnail(model.path)
+                                 : model.exten.indexOf("/") === -1 ? fileInfo.getIconForFile(fileInfo.getFileMimetype(model.path).name, Theme.colorScheme)
+                                 : model.path
+
+                        width: source === model.path ? smallSize : 96
+                        height: source === model.path ? smallSize : implicitHeight
+                        fillMode: Image.PreserveAspectFit
+
+                        property int smallSize: 32 // Example small size
+                    }
+
+                Column {
+                                id: labels
+                                anchors {
+                                    left: delegateImage.right
+                                    leftMargin: Theme.paddingMedium
+                                    right: parent.right
+                                    rightMargin: Theme.horizontalPageMargin
+                                    verticalCenter: parent.verticalCenter
+                                }
+                                Label {
+
+                                    text: searchText.text.length>0 ? replaceText(model.name, searchText.text) : model.name
+                                    width: parent.width
+                                    color: fileDelegate.highlighted ? Theme.highlightColor : Theme.primaryColor
+                                    font.pixelSize: Theme.fontSizeMedium
+                                    truncationMode: TruncationMode.Fade
+                                }
+
+
+                Item {
+                                    width: parent.width
+                                    height: sizeLabel.height
+                                    Label {
+                                        id: sizeLabel
+                                        text: model.size
+                                        font.pixelSize: Theme.fontSizeExtraSmall
+                                        color: fileDelegate.highlighted ? Theme.secondaryHighlightColor : Theme.secondaryColor
+                                    }
+                                    Label {
+                                        anchors.right: parent.right
+                                        text: model.date
+                                        font.pixelSize: Theme.fontSizeExtraSmall
+                                        color: fileDelegate.highlighted ? Theme.secondaryHighlightColor : Theme.secondaryColor
+                                    }
+                                }
+                }
 
                 mime: model.exten.indexOf("/")>-1? model.exten : "image/png"
 
-                title: searchText.text.length>0 ? replaceText(model.name, searchText.text) : model.name
+                //title: searchText.text.length>0 ? replaceText(model.name, searchText.text) : model.name
 
-                description: model.size.length>0? model.date + (model.date.length>0? " - ":"") + model.size : model.date
+                //description: model.size.length>0? model.date + (model.date.length>0? " - ":"") + model.size : model.date
 
                 showLink: model.link==="yes" && model.exten!=="folder"
 
                 onClicked: {
+
                     if ( selectionmode ) //&& (extractcancel.visible==false) )
                     {
                         //var action = selectionmodeItems.indexOf(model.path)>-1? "remove" : "add"
